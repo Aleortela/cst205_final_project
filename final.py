@@ -6,6 +6,7 @@ from wtforms.validators import DataRequired, EqualTo
 import re
 import sqlite3 as sql
 from datetime import datetime
+import sys
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'csumb-wishlist'
@@ -13,15 +14,12 @@ app.config["DEBUG"] = True
 bootstrap = Bootstrap5(app)
 
 # mysql = MySQL(app)
-
-
-def db_connect():
-   conn = None
+def get_db_connect():
    try:
-      conn = sql.connect('205final.sqlite')
+      conn = sql.connect('database.db')
+      conn.row_factory = sql.Row
    except sql.error as e:
       print(e)
-   
    return conn
 
 class Wishlist(FlaskForm):
@@ -41,13 +39,14 @@ def home():
    if form.validate_on_submit():
       store_item(form.list_item.data)
       return redirect('/view_playlist')
+
+   
    return render_template('home.html', form = form)
 
-import sys
 @app.route('/signup', methods=('GET', 'POST'))
 def signup():
    msg = ''
-   conn = db_connect()
+   conn = get_db_connect()
    cursor = conn.cursor()
    if request.method == "POST" and 'username' in request.form and 'password' in request.form:
       username = request.form['username']
@@ -61,14 +60,19 @@ def signup():
       elif not username or not password:
          msg = 'Please fill out the form !'
       else:
-         cursor.execute('INSERT INTO users VALUES (username, password)')
-         sql.connection.commit()
+         username = request.form['username']
+         password = request.form['password']
+         params = (username, password)
+         cursor.execute('INSERT INTO users VALUES (NULL,?,?)', params)
+         conn.commit()
          msg = 'You have successfully registered !'
    elif request.method == 'POST':
       msg = 'Please fill out the form !'
+
    return render_template('signup.html', msg = msg)
    #return render_template('signup.html', error=error)
 
 @app.route('/view_wishlist')
 def view_list():
    return render_template('view_wishlist.html')
+
