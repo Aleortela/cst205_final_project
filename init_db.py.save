@@ -1,0 +1,11 @@
+import sqlite3
+conn = sqlite3.connect("205final.sqlite")
+
+with open('scheam.sql') as f:
+    conn.executescript(f.read())
+
+cursor = conn.cursor()
+
+
+
+cursor.execute(sql_query)
