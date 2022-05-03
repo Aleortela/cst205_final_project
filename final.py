@@ -7,6 +7,8 @@ import re
 import sqlite3 as sql
 from datetime import datetime
 import sys
+import json
+
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'csumb-wishlist'
@@ -70,9 +72,11 @@ def signup():
       msg = 'Please fill out the form !'
 
    return render_template('signup.html', msg = msg)
-   #return render_template('signup.html', error=error)
+
+@app.route('/products')
+def products():
+   return render_template('products.html')
 
 @app.route('/view_wishlist')
 def view_list():
    return render_template('view_wishlist.html')
-
