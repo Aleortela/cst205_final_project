@@ -6,7 +6,7 @@ from wtforms.validators import DataRequired, EqualTo
 import re
 import sqlite3 as sql
 from datetime import datetime
-import sys
+import sys, jsonify
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'csumb-wishlist'
@@ -22,28 +22,31 @@ def get_db_connect():
       print(e)
    return conn
 
-class Wishlist(FlaskForm):
-   list_item = StringField('Wishlist Item', validators=[DataRequired()])
+class Drink(FlaskForm):
+   drink_name = StringField('Enter a drink', validators=[DataRequired()])
 
-wishlist = []
 
 def store_item(my_item):
-   wishlist.append(dict(
-      item  = my_item,
-      date = datetime.today()))
+   conn = get_db_connect()
+   cursor = conn.cursor()
+   drink_name = my_item
+   userid = 00
+   params = [drink_name, userid]
+   cursor.execute('INSERT INTO drinks VALUES (NULL,?,?)', params)
+   conn.commit()
 
 
-@app.route('/', methods=('GET', 'POST'))
+@app.route('/', methods=['GET', 'POST'])
 def home():
-   form = Wishlist()
+   form = Drink()
    if form.validate_on_submit():
-      store_item(form.list_item.data)
-      return redirect('/view_playlist')
+      store_item(form.drink_name.data)
+      msg = 'Successfully added!'
+      return render_template('view_drinklist.html', msg = msg)
 
-   
    return render_template('home.html', form = form)
 
-@app.route('/signup', methods=('GET', 'POST'))
+@app.route('/signup', methods=['GET', 'POST'])
 def signup():
    msg = ''
    conn = get_db_connect()
@@ -72,7 +75,20 @@ def signup():
    return render_template('signup.html', msg = msg)
    #return render_template('signup.html', error=error)
 
-@app.route('/view_wishlist')
+@app.route('/view_drinklist', methods=['GET'])
 def view_list():
-   return render_template('view_wishlist.html')
+   conn =  get_db_connect()
+   cursor = conn.cursor()
+   
+   if request.method == 'GET':
+       cursor = conn.execute('SELECT * FROM drinks')
+       for row in cursor.fetchall():
+           drinks = {'id': row[0], 
+                     'drink_name': row[1],
+                     'userid': row[2]}
+           if drinks is not None:
+               return jsonify(drinks)
+       
+   conn.commit()
+   return render_template('view_drinklist.html', drinks=drinks)
 
