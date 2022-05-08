@@ -3,16 +3,30 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.2/css/bootstrap.min.css" integrity="sha384-y3tfxAZXuh4HwSYylfB+J125MxIs6mR5FOHamPBG064zB+AFeWH94NdvaCBm8qnd" crossorigin="anonymous">
   <title>Products Page</title>
 </head>
 <body style="text-align: center">
-    <div class="card" style="width: 18rem;">
-        <img class="card-img-top" src="..." width="200" height="400" alt="Card image cap">
+
+    <div class="card-deck">
+      <div class="card" style="width: 18rem;">
+        <img class="card-img-top" src="/static/images/flower.jpg" width="300" height="300" alt="Card image cap">
         <div class="card-body">
-          <h5 class="card-title">Card title</h5>
-          <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
-          <a href="#" class="btn btn-primary">Go somewhere</a>
+          <h5 class="card-title">{{productName1}}</h5>
+          <p class="card-text">Product description</p>
+          <button class="btn btn-primary">Add to Wishlist</a>
         </div>
       </div>
+      
+      <div class="card"  style="width: 18rem;">
+        <img class="card-img-top" src="/static/images/{{image1}}" width="300" height="300" alt="Card image cap">
+        <div class="card-body">
+            <h5 class="card-title">{{productName2}} </h5> 
+            <p class="card-text">{{productDes}}</p>
+            <button class="btn btn-primary">Add to Wishlist</a>
+          </div>
+      </div>
+    </div> 
+    
 </body>
 </html>
