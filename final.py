@@ -1,7 +1,8 @@
 from flask import Flask, render_template, redirect, request, url_for, session, flash
 from flask_bootstrap import Bootstrap5
 from flask_wtf import FlaskForm
-from flask_login import LoginManager
+from flask_login import (LoginManager, UserMixin, login_required,
+login_user, logout_user, current_user)
 from flask_nav import Nav
 from flask_nav.elements import Navbar, View
 from wtforms import StringField, SubmitField
@@ -15,11 +16,46 @@ app = Flask(__name__)
 app.config['SECRET_KEY'] = 'csumb-wishlist'
 app.config["DEBUG"] = True
 bootstrap = Bootstrap5(app)
-login_manager = LoginManager()
+login_manager = LoginManager(app)
+login_manager.login_view = 'login'
 nav = Nav()
 
 class Drink(FlaskForm):
    drink_name = StringField('Enter a drink', validators=[DataRequired()])
+   
+class Login(FlaskForm):
+    username = StringField('username', validators=[DataRequired()])
+    password = StringField('password', validators=[DataRequired()])
+    #remember = BooleanField('Remember Me')
+    submit = SubmitField('login')
+   
+class User(UserMixin):
+    def __init__(self, id, username, password):
+        self.id = id
+        self.username = username
+        self.password = password
+        self.authenticated = False
+    
+    def is_anonymous(self):
+        return False
+    def is_authenticated(self):
+        return self.authenticated()
+    def is_active(self):
+        return True
+    def get_id(self):
+        return self.id
+
+@login_manager.user_loader
+def load_user(user_id):
+    conn = get_db_connect()
+    cursor = conn.cursor()
+    params = [user_id]
+    cursor.execute('SELECT * FROM users WHERE username = (?)', params)
+    user = cursor.fetchone()
+    if user is None:
+        return 'Not a valid user'
+    else:
+        return User(int(user[0]),user[1],user[2])
 
 def get_db_connect():
    try:
@@ -38,14 +74,6 @@ def store_item(my_item):
    cursor.execute('INSERT INTO drinks VALUES (NULL,?,?)', params)
    conn.commit()
 
-def read_db():
-    conn = get_db_connect()
-    cursor = conn.cursor()
-    table = []
-    cursor = conn.execute('SELECT * FROM drinks')
-    for row in cursor.fetchall():
-        for i in range(0, len((cursor.fetchall()))):
-            table[i] = row
 
 @nav.navigation()
 def mynavbar():
@@ -108,22 +136,26 @@ def view_list():
     conn.commit()
     return render_template('view_drinklist.html',len = len(drinks),drinks=drinks)
 
+
 @app.route('/login', methods=['GET', 'POST'])
 def login():
-    conn = get_db_connect()
-    cursor = conn.cursor()
-    
-    if request.method == 'GET':
-        if 'username' in request.form and 'password' in request.form:
-            username = request.form['username']
-            password = request.form['password']
-            params = [username, password]
-            conn.execute('SELECT * FROM users WHERE username = ? AND password = ?', params)
-            user = cursor.fetchall()
-            if user:
-                render_template('profile_page.html',username=username)
-            
-    return render_template('LoginPage.html')
+    form = Login()
+    if current_user.is_authenticated:
+        return redirect(url_for('profile'))
+    if form.validate_on_submit():
+        conn = get_db_connect()
+        cursor = conn.cursor()
+        username = request.form['username']
+        password = request.form['password']
+        params = [username, password]
+        cursor.execute('SELECT * FROM users WHERE username = ? AND password = ?', params)
+        user = [cursor.fetchone()]
+        Us = load_user(user[0])
+        if form.username.data == Us.username and form.password.data == Us.password:
+           login_manager.login_user(Us, remember=form.remember.data)
+           msg = 'Successful Login'
+           return render_template('profile_page.html', user=Us)
+    return render_template('LoginPage.html',form=form)
 
 @app.route('/profile_page', methods=['GET', 'POST'])
 def profile():
