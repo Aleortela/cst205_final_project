@@ -1,5 +1,5 @@
 import sqlite3
-conn = sqlite3.connect("205final.sqlite")
+conn = sqlite3.connect("database.db")
 cursor = conn.cursor()
 
 sql_query = """ CREATE TABLE users (
@@ -8,4 +8,11 @@ sql_query = """ CREATE TABLE users (
     password text NOT NULL
 )"""
 
-cursor.execute(sql_query)
+drink_query = """ CREATE TABLE drinks (
+    drinkid int PRIMARY KEY,
+    drink_name text NOT NULL,
+    userid int NOT NULL
+)"""
+
+#cursor.execute(sql_query)
+cursor.execute(drink_query)
