@@ -7,11 +7,14 @@ import re
 import sqlite3 as sql
 from datetime import datetime
 import sys
+import json
+from api_test import Products
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'csumb-wishlist'
 app.config["DEBUG"] = True
 bootstrap = Bootstrap5(app)
+product = Products()
 
 # mysql = MySQL(app)
 def get_db_connect():
@@ -70,9 +73,19 @@ def signup():
       msg = 'Please fill out the form !'
 
    return render_template('signup.html', msg = msg)
-   #return render_template('signup.html', error=error)
+
+@app.route('/products')
+def products():
+   data_5 = product.get_random_products()
+   data_6 = product.search_cocktail()
+   productName_1 = data_5['drinks'][0]['strDrink']
+   productName_2 = data_5['drinks'][0]['strDrink']
+   
+   product_image = data_5['drinks'][0]['strDrinkThumb']
+
+   product_description_1 = data_6['ingredients'][0]['strIngredient']
+   return render_template('products.html', productName1 = productName_1, productName2 = productName_2, productDes = product_description_1, image1=product_image)
 
 @app.route('/view_wishlist')
 def view_list():
    return render_template('view_wishlist.html')
-
