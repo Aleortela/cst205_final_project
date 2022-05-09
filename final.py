@@ -1,6 +1,9 @@
 from flask import Flask, render_template, redirect, request, url_for, session, flash
 from flask_bootstrap import Bootstrap5
 from flask_wtf import FlaskForm
+from flask_login import LoginManager
+from flask_nav import Nav
+from flask_nav.elements import Navbar, View
 from wtforms import StringField, SubmitField
 from wtforms.validators import DataRequired, EqualTo
 import re
@@ -12,8 +15,12 @@ app = Flask(__name__)
 app.config['SECRET_KEY'] = 'csumb-wishlist'
 app.config["DEBUG"] = True
 bootstrap = Bootstrap5(app)
+login_manager = LoginManager()
+nav = Nav()
 
-# mysql = MySQL(app)
+class Drink(FlaskForm):
+   drink_name = StringField('Enter a drink', validators=[DataRequired()])
+
 def get_db_connect():
    try:
       conn = sql.connect('database.db')
@@ -21,10 +28,6 @@ def get_db_connect():
    except sql.error as e:
       print(e)
    return conn
-
-class Drink(FlaskForm):
-   drink_name = StringField('Enter a drink', validators=[DataRequired()])
-
 
 def store_item(my_item):
    conn = get_db_connect()
@@ -35,7 +38,20 @@ def store_item(my_item):
    cursor.execute('INSERT INTO drinks VALUES (NULL,?,?)', params)
    conn.commit()
 
+def read_db():
+    conn = get_db_connect()
+    cursor = conn.cursor()
+    table = []
+    cursor = conn.execute('SELECT * FROM drinks')
+    for row in cursor.fetchall():
+        for i in range(0, len((cursor.fetchall()))):
+            table[i] = row
 
+@nav.navigation()
+def mynavbar():
+   return Navbar('Drinkr', View('ACCOUNT LOGIN','login'),View('SIGN UP', 'signup'))
+nav.init_app(app)
+        
 @app.route('/', methods=['GET', 'POST'])
 def home():
    form = Drink()
@@ -63,32 +79,55 @@ def signup():
       elif not username or not password:
          msg = 'Please fill out the form !'
       else:
-         username = request.form['username']
-         password = request.form['password']
          params = (username, password)
          cursor.execute('INSERT INTO users VALUES (NULL,?,?)', params)
          conn.commit()
          msg = 'You have successfully registered !'
+         return render_template('profile_page.html', msg=msg)
    elif request.method == 'POST':
       msg = 'Please fill out the form !'
 
-   return render_template('signup.html', msg = msg)
+   return render_template('signup.html', msg = msg, username=username)
    #return render_template('signup.html', error=error)
 
-@app.route('/view_drinklist', methods=['GET'])
+@app.route('/view_drinklist', methods=['GET','POST'])
 def view_list():
-   conn =  get_db_connect()
+    drinks = []
+    conn =  get_db_connect()
+    cursor = conn.cursor()
+    cursor.execute('SELECT drink_name FROM drinks')
+    if request.method == 'GET':
+        for row in cursor.fetchall():
+            for i in range(0, len(cursor.fetchall())):
+               drinks[i] = row
+               if drinks is not None:
+                  return drinks
+               else:
+                   return "Drinks is empty!"
+              
+    conn.commit()
+    return render_template('view_drinklist.html',len = len(drinks),drinks=drinks)
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    conn = get_db_connect()
+    cursor = conn.cursor()
+    
+    if request.method == 'GET':
+        if 'username' in request.form and 'password' in request.form:
+            username = request.form['username']
+            password = request.form['password']
+            params = [username, password]
+            conn.execute('SELECT * FROM users WHERE username = ? AND password = ?', params)
+            user = cursor.fetchall()
+            if user:
+                render_template('profile_page.html',username=username)
+            
+    return render_template('LoginPage.html')
+
+@app.route('/profile_page', methods=['GET', 'POST'])
+def profile():
+   conn = get_db_connect()
    cursor = conn.cursor()
    
-   if request.method == 'GET':
-       cursor = conn.execute('SELECT * FROM drinks')
-       for row in cursor.fetchall():
-           drinks = {'id': row[0], 
-                     'drink_name': row[1],
-                     'userid': row[2]}
-           if drinks is not None:
-               return jsonify(drinks)
-       
-   conn.commit()
-   return render_template('view_drinklist.html', drinks=drinks)
-
+   return render_template('profile_page.html')
