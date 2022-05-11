@@ -10,7 +10,10 @@ from wtforms.validators import DataRequired, EqualTo
 import re
 import sqlite3 as sql
 from datetime import datetime
-import sys, jsonify
+import sys
+import json,jsonify
+from api_test import Products
+
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'csumb-wishlist'
@@ -56,6 +59,9 @@ def load_user(user_id):
         return 'Not a valid user'
     else:
         return User(int(user[0]),user[1],user[2])
+
+product = Products()
+
 
 def get_db_connect():
    try:
@@ -114,9 +120,20 @@ def signup():
          return render_template('profile_page.html', msg=msg)
    elif request.method == 'POST':
       msg = 'Please fill out the form !'
+      
+   return render_template('signup.html', msg = msg)
 
-   return render_template('signup.html', msg = msg, username=username)
-   #return render_template('signup.html', error=error)
+@app.route('/products')
+def products():
+   data_5 = product.get_random_products()
+   data_6 = product.search_cocktail()
+   productName_1 = data_5['drinks'][0]['strDrink']
+   productName_2 = data_5['drinks'][0]['strDrink']
+   
+   product_image = data_5['drinks'][0]['strDrinkThumb']
+
+   product_description_1 = data_6['ingredients'][0]['strIngredient']
+   return render_template('products.html', productName1 = productName_1, productName2 = productName_2, productDes = product_description_1, image1=product_image)
 
 @app.route('/view_drinklist', methods=['GET','POST'])
 def view_list():

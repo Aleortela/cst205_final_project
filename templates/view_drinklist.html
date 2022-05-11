@@ -13,9 +13,9 @@
     <body>
         <h1 style="text-align:center">User Favorites</h1>        
         <ul>
-        {%for drink in drinks%}
-        <li>{{drink[drink_name]}}</li>
-        {%endfor%}
+        {% for drink in drinks %}
+        <li> {{ drink }} </li>
+        {% endfor %}
         </ul>    
         {% block content %}{% endblock %}
         
