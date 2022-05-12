@@ -10,7 +10,7 @@ from wtforms.validators import DataRequired, EqualTo
 import re
 import sqlite3 as sql
 from datetime import datetime
-import sys, jsonify
+import sys
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'csumb-wishlist'
@@ -153,13 +153,18 @@ def login():
         Us = load_user(user[0])
         if form.username.data == Us.username and form.password.data == Us.password:
            login_manager.login_user(Us, remember=form.remember.data)
-           msg = 'Successful Login'
-           return render_template('profile_page.html', user=Us)
+           name = request.form['username']
+           return redirect(url_for('profile', name=name))
     return render_template('LoginPage.html',form=form)
 
-@app.route('/profile_page', methods=['GET', 'POST'])
-def profile():
-   conn = get_db_connect()
-   cursor = conn.cursor()
-   
-   return render_template('profile_page.html')
+@app.route('/profile_page/<name>', methods=['GET', 'POST'])
+def profile(name):
+ 
+    conn = get_db_connect()
+    cursor = conn.cursor()
+    username = name
+    params = [username]
+    cursor = cursor.execute('SELECT * FROM users WHERE userid = ?', params)
+    user = cursor.fetchone()
+    
+    return render_template('profile_page.html',user=user)
