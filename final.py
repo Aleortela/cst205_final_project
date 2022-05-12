@@ -128,12 +128,15 @@ def products():
    data_5 = product.get_random_products()
    data_6 = product.search_cocktail()
    productName_1 = data_5['drinks'][0]['strDrink']
-   productName_2 = data_5['drinks'][0]['strDrink']
+   productName_2 = data_5['drinks'][1]['strDrink']
    
    product_image = data_5['drinks'][0]['strDrinkThumb']
+   product_image2 = data_5['drinks'][1]['strDrinkThumb']
+   product_description_1 = data_5['drinks'][0]['strInstructions']
+   product_description_2 = data_5['drinks'][1]['strInstructions']
+   
 
-   product_description_1 = data_6['ingredients'][0]['strIngredient']
-   return render_template('products.html', productName1 = productName_1, productName2 = productName_2, productDes = product_description_1, image1=product_image)
+   return render_template('products.html', productName1 = productName_1, productName2 = productName_2, productDes = product_description_1, productDes2= product_description_2, image1=product_image, image2 = product_image2)
 
 @app.route('/view_drinklist', methods=['GET','POST'])
 def view_list():
