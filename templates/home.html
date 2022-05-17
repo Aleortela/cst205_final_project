@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width">
-  <title>Wishlist Title Placeholder</title>
+  <title>Drinkr Home</title>
 </head>
 <body style="text-align: center">
    <h1>Welcome to Wishlist App</h1>
@@ -12,11 +12,7 @@
    {% endblock %}
    <br>
    <br>
-   <form method = "POST" action ="/">
-   {{form.csrf_token}}
-   {{form.drink_name.label}}
-   {{form.drink_name(size=64)}}
-   <input type="submit" value="Submit">
+   
 
   <div>
     <button href="{{url_for('signup')}}"> Signup</button>
