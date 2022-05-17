@@ -13,6 +13,7 @@ from datetime import datetime
 import sys, json, jsonify
 from api_test import Products as product
 
+
 app = Flask(__name__)
 app.config.from_object(__name__)
 app.config['SECRET_KEY'] = 'csumb-wishlist'
@@ -57,6 +58,9 @@ def load_user(user_id):
         return 'Not a valid user'
     else:
         return User(int(user[0]),user[1],user[2])
+
+product = Products()
+
 
 def get_db_connect():
    try:
@@ -114,8 +118,7 @@ def signup():
          msg = 'You have successfully registered !'
          return render_template('profile_page.html', msg=msg)
    elif request.method == 'POST':
-      msg = 'Please fill out the form !'
-
+      msg = 'Please fill out the form!'
    return render_template('signup.html', msg = msg, username=username)
 
 @app.route('/products')
