@@ -10,27 +10,26 @@ from wtforms.validators import DataRequired, EqualTo
 import re
 import sqlite3 as sql
 from datetime import datetime
-import sys
-import json,jsonify
-from api_test import Products
+import sys, json, jsonify
+from api_test import Products as product
 
 
 app = Flask(__name__)
+app.config.from_object(__name__)
 app.config['SECRET_KEY'] = 'csumb-wishlist'
+app.secret_key = 'csumb-wishlist'
 app.config["DEBUG"] = True
+app.config['SESSION_PERMANENT'] = False
+app.config['SESSION_TYPE'] = 'filesystem'
 bootstrap = Bootstrap5(app)
-login_manager = LoginManager(app)
-login_manager.login_view = 'login'
+login_manager = LoginManager()
+login_manager.login_view = 'auth.login'
+login_manager.init_app(app)
 nav = Nav()
 
 class Drink(FlaskForm):
    drink_name = StringField('Enter a drink', validators=[DataRequired()])
    
-class Login(FlaskForm):
-    username = StringField('username', validators=[DataRequired()])
-    password = StringField('password', validators=[DataRequired()])
-    #remember = BooleanField('Remember Me')
-    submit = SubmitField('login')
    
 class User(UserMixin):
     def __init__(self, id, username, password):
@@ -71,11 +70,11 @@ def get_db_connect():
       print(e)
    return conn
 
-def store_item(my_item):
+def store_item(my_item,userid):
    conn = get_db_connect()
    cursor = conn.cursor()
    drink_name = my_item
-   userid = 00
+   userid = userid
    params = [drink_name, userid]
    cursor.execute('INSERT INTO drinks VALUES (NULL,?,?)', params)
    conn.commit()
@@ -88,13 +87,13 @@ nav.init_app(app)
         
 @app.route('/', methods=['GET', 'POST'])
 def home():
-   form = Drink()
-   if form.validate_on_submit():
-      store_item(form.drink_name.data)
-      msg = 'Successfully added!'
-      return render_template('view_drinklist.html', msg = msg)
+    form = Drink()
+    if form.validate_on_submit():
+        store_item(form.drink_name.data, session['username'])
+        msg = 'Successfully added!'
+        return render_template('view_drinklist.html', msg = msg)
 
-   return render_template('home.html', form = form)
+    return render_template('home.html', form = form)
 
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():
@@ -119,73 +118,101 @@ def signup():
          msg = 'You have successfully registered !'
          return render_template('profile_page.html', msg=msg)
    elif request.method == 'POST':
-      msg = 'Please fill out the form !'
-      
-   return render_template('signup.html', msg = msg)
+      msg = 'Please fill out the form!'
+   return render_template('signup.html', msg = msg, username=username)
 
 @app.route('/products')
 def products():
-   data_5 = product.get_random_products()
- 
-   data_6 = product.search_cocktail()
-   productName_1 = data_5['drinks'][0]['strDrink']
-   productName_2 = data_5['drinks'][1]['strDrink']
-   
-   product_image = data_5['drinks'][0]['strDrinkThumb']
-   product_image2 = data_5['drinks'][1]['strDrinkThumb']
-   product_description_1 = data_5['drinks'][0]['strInstructions']
-   product_description_2 = data_5['drinks'][1]['strInstructions']
-   
-   return render_template('products.html', productName1 = productName_1, productName2 = productName_2, productDes = product_description_1, productDes2= product_description_2, image1=product_image, image2 = product_image2)
-   
+    if 'username' in session:
+        data_5 = product.get_random_products()
+        #data_6 = product.search_cocktail()
+        id = data_5['drinks'][0]['idDrink']
+        id2 = data_5['drinks'][1]['idDrink']
+        productName_1 = data_5['drinks'][0]['strDrink']
+        productName_2 = data_5['drinks'][1]['strDrink']
+        product_image = data_5['drinks'][0]['strDrinkThumb']
+        product_image2 = data_5['drinks'][1]['strDrinkThumb']
+        product_description_1 = data_5['drinks'][0]['strInstructions']
+        product_description_2 = data_5['drinks'][1]['strInstructions']
+        return render_template('products.html', productName1 = productName_1, productName2 = productName_2, 
+                          productDes = product_description_1, productDes2= product_description_2, 
+                          image1=product_image, image2 = product_image2, id = id, id2=id2)
+    else:
+        return redirect(url_for('login'))
 
-@app.route('/view_drinklist', methods=['GET','POST'])
+@app.route('/view_drinklist/<id>', methods=['GET','POST'])
 def view_list(id):
-   
-    data_1= product.lookupdrinks(id)
-    drinks = []
-    conn =  get_db_connect()
-    cursor = conn.cursor()
-    id = data_1['drinks'][0]['idDrink']
-    productName_11 = data_1['drinks'][0]['strDrink']
-    product_image1 = data_1['drinks'][0]['strDrinkThumb']
-    cursor.execute('SELECT drink_name FROM drinks')
-    if request.method == 'GET':
-        for row in cursor.fetchall():
-            for i in range(0, len(cursor.fetchall())):
-               drinks[i] = row
-               if drinks is not None:
-                  return drinks
-               else:
-                   return "Drinks is empty!"
-              
-    conn.commit()
-    return render_template('view_drinklist.html',id1=id, len = len(drinks),drinks=drinks, productName1 = productName_11, v2=product_image1)
+    if 'username' in session: 
+        if request.method == 'GET':
+            drinkid = id
+            data_1= product.lookupdrinks(drinkid)
+            conn =  get_db_connect()
+            cursor = conn.cursor()
+            if data_1 is not None:
+                id1 = data_1['drinks'][0]['idDrink']
+                productName_11 = data_1['drinks'][0]['strDrink']
+                product_image1 = data_1['drinks'][0]['strDrinkThumb']
+                cursor = cursor.execute('SELECT drink_name FROM drinks')
+                return render_template('view_drinklist.html',id1=id1, productName1 = productName_11, 
+                                       v2=product_image1)
+            else:
+                return "data_1 is empty"
 
-
-@app.route('/login', methods=['GET', 'POST'])
+@app.route('/LoginPage', methods=['GET','POST'])
 def login():
-    form = Login()
-    if current_user.is_authenticated:
-        return redirect(url_for('profile'))
-    if form.validate_on_submit():
+    if request.method == 'POST':
         conn = get_db_connect()
         cursor = conn.cursor()
-        username = request.form['username']
-        password = request.form['password']
+        session.permanent = True
+        username = request.form['usrnm']
+        session['username'] = username
+        password = request.form['pwd']
         params = [username, password]
         cursor.execute('SELECT * FROM users WHERE username = ? AND password = ?', params)
         user = [cursor.fetchone()]
-        Us = load_user(user[0])
-        if form.username.data == Us.username and form.password.data == Us.password:
-           login_manager.login_user(Us, remember=form.remember.data)
-           msg = 'Successful Login'
-           return render_template('profile_page.html', user=Us)
-    return render_template('LoginPage.html',form=form)
+        session['userid'] = user[0][0]
+        if user is not None:
+            flash(f'{username} login Successful', 'info')
+            return redirect(url_for('profile'))
+    else:
+        if 'user' in session:
+            return redirect(url_for('profile'))
+        return render_template('LoginPage.html')
+    
+@app.route('/logout', methods = ['GET','POST'])
+def logout():
+    if 'username' in session:
+        user = session['username']
+        flash(f'{user} logout Successful', 'info')
+    session.pop('user', None)
+    return redirect(url_for('login'))
+
+@app.route('/edit', methods=['GET', 'POST'])
+def useredit():
+    if 'userid' in session:
+        if request.method == 'POST':
+            conn = get_db_connect()
+            cursor = conn.cursor()            
+            username = request.form['usrnm']
+            session['username'] = username
+            password = request.form['pwd']
+            params = [username, password, session['userid']]
+            cursor.execute('UPDATE users SET username = ?, password = ?'
+                                   'WHERE userid = ?', params)
+            flash(f'{username} was successfully updated','info')
+            conn.commit()
+            return redirect(url_for('profile'))
+            
+            
+    
 
 @app.route('/profile_page', methods=['GET', 'POST'])
 def profile():
-   conn = get_db_connect()
-   cursor = conn.cursor()
-   
-   return render_template('profile_page.html')
+    if 'username' in session:
+        user= {'username': session['username'],
+               'password': session['password']}
+        if user is not None:
+            return render_template('profile_page.html',user=user)
+    else:
+        return render_template('LoginPage.html')
+    

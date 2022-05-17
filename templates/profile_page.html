@@ -15,10 +15,24 @@
   <body>
     {% block content %}
  <div class="container">
- <h1 style="text-align: center"> Profile Page</h1>
- <p style="text-align: center">Username: <input type="text"><br>
-    Password: <input type="text"><br>
- </p>	
+ <h1 style="text-align: center">{{user.username}}'s Profile Page</h1>
+ <br>
+ {% with messages = get_flashed_messages() %}
+      {% if messages %}
+          {% for msg in messages %}
+              <p>{{msg}}</p>
+          {% endfor %}
+      {% endif %}
+  {% endwith %}
+ <form action="/edit" method="POST">
+ <p style="text-align: center">
+    Username: <input type="text" name="usrnm" 
+    placeholder="username" value="{{user.username}}"></input><br>
+    Password: <input type="password" name="pwd" 
+    placeholder="username" value="{{user.password}}"><br><br>
+    <input type="submit" value="Edit Account"></input>
+ </p>
+ </form>
  </div>
     {% endblock %}
 
