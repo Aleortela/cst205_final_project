@@ -140,11 +140,13 @@ def products():
    
 
 @app.route('/view_drinklist', methods=['GET','POST'])
-def view_list():
-    data_1= product.get_random_products()
+def view_list(id):
+   
+    data_1= product.lookupdrinks(id)
     drinks = []
     conn =  get_db_connect()
     cursor = conn.cursor()
+    id = data_1['drinks'][0]['idDrink']
     productName_11 = data_1['drinks'][0]['strDrink']
     product_image1 = data_1['drinks'][0]['strDrinkThumb']
     cursor.execute('SELECT drink_name FROM drinks')
@@ -158,7 +160,7 @@ def view_list():
                    return "Drinks is empty!"
               
     conn.commit()
-    return render_template('view_drinklist.html',len = len(drinks),drinks=drinks, productName1 = productName_11, v2=product_image1)
+    return render_template('view_drinklist.html',id1=id, len = len(drinks),drinks=drinks, productName1 = productName_11, v2=product_image1)
 
 
 @app.route('/login', methods=['GET', 'POST'])

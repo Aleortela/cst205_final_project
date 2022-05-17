@@ -31,19 +31,17 @@ class Products:
 		data1 = json.loads(data)
 		return data1
 
-	# def lookupdrinks(self):
-	# 	url = "https://the-cocktail-db.p.rapidapi.com/lookup.php"
-	# 	querystring = {"i":"11007"}
-	# 	for v in querystring.values():
-	# 		v = v + "1"
-	# 	headers = {
-	# 		"X-RapidAPI-Host": "the-cocktail-db.p.rapidapi.com",
-	# 		"X-RapidAPI-Key": "eff52018ddmshba57fe675624e94p169c8ajsn5685027421e4"
-	# 		}
-	# 	response = requests.request("GET", url, headers=headers, params=querystring)
-	# 	data = response.text
-	# 	data1 = json.loads(data)
-	# 	return data1
+	def lookupdrinks(self,id):
+		url = "https://the-cocktail-db.p.rapidapi.com/lookup.php"
+		querystring = {"i":id}
+		headers = {
+			"X-RapidAPI-Host": "the-cocktail-db.p.rapidapi.com",
+			"X-RapidAPI-Key": "eff52018ddmshba57fe675624e94p169c8ajsn5685027421e4"
+			}
+		response = requests.request("GET", url, headers=headers, params=querystring)
+		data = response.text
+		data1 = json.loads(data)
+		return data1
 
 
 
