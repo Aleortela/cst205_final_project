@@ -126,20 +126,29 @@ def signup():
 @app.route('/products')
 def products():
    data_5 = product.get_random_products()
+ 
    data_6 = product.search_cocktail()
    productName_1 = data_5['drinks'][0]['strDrink']
-   productName_2 = data_5['drinks'][0]['strDrink']
+   productName_2 = data_5['drinks'][1]['strDrink']
    
    product_image = data_5['drinks'][0]['strDrinkThumb']
-
-   product_description_1 = data_6['ingredients'][0]['strIngredient']
-   return render_template('products.html', productName1 = productName_1, productName2 = productName_2, productDes = product_description_1, image1=product_image)
+   product_image2 = data_5['drinks'][1]['strDrinkThumb']
+   product_description_1 = data_5['drinks'][0]['strInstructions']
+   product_description_2 = data_5['drinks'][1]['strInstructions']
+   
+   return render_template('products.html', productName1 = productName_1, productName2 = productName_2, productDes = product_description_1, productDes2= product_description_2, image1=product_image, image2 = product_image2)
+   
 
 @app.route('/view_drinklist', methods=['GET','POST'])
-def view_list():
+def view_list(id):
+   
+    data_1= product.lookupdrinks(id)
     drinks = []
     conn =  get_db_connect()
     cursor = conn.cursor()
+    id = data_1['drinks'][0]['idDrink']
+    productName_11 = data_1['drinks'][0]['strDrink']
+    product_image1 = data_1['drinks'][0]['strDrinkThumb']
     cursor.execute('SELECT drink_name FROM drinks')
     if request.method == 'GET':
         for row in cursor.fetchall():
@@ -151,7 +160,7 @@ def view_list():
                    return "Drinks is empty!"
               
     conn.commit()
-    return render_template('view_drinklist.html',len = len(drinks),drinks=drinks)
+    return render_template('view_drinklist.html',id1=id, len = len(drinks),drinks=drinks, productName1 = productName_11, v2=product_image1)
 
 
 @app.route('/login', methods=['GET', 'POST'])
