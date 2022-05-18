@@ -12,4 +12,8 @@ How to run program: Download the code zip file through the code button on the gi
 
 Link to github repo: https://github.com/Aleortela/cst205_final_project
 
-Future work: If we had more time, we could add shopping cart functionality. 
+Future work: 
+
+- Shopping cart functionality
+- Users being able to add multiple products to their wishlist
+- removing a product off their wishlist
