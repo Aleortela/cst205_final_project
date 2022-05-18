@@ -19,6 +19,7 @@ import re
 import sqlite3 as sql
 from api_test import Products as product
 
+
 app = Flask(__name__)
 app.config.from_object(__name__)
 app.config['SECRET_KEY'] = 'csumb-wishlist'
@@ -28,6 +29,7 @@ app.config['SESSION_PERMANENT'] = False
 app.config['SESSION_TYPE'] = 'filesystem'
 bootstrap = Bootstrap5(app)
 nav = Nav()
+
 
 def store_item(drinkName,username):
    conn = get_db_connect()
@@ -89,6 +91,7 @@ def signup():
    session.permanent = True
    if request.method == "POST" and 'username' in request.form and 'password' in request.form:
       username = request.form['username']
+      session['username'] = username
       password = request.form['password']
       cursor.execute('SELECT * FROM users WHERE username = ? AND password = ?', (username, password, ))
       account = cursor.fetchone()
@@ -109,8 +112,7 @@ def signup():
          msg = 'You have successfully registered !'
          return render_template('profile_page.html', msg=msg, user=user)
    elif request.method == 'POST':
-      msg = 'Please fill out the form !'
-
+      msg = 'Please fill out the form!'
    return render_template('signup.html', msg = msg)
 
 # products() shows that if a user is logged in and gets to the products' route, data is fetched from the api to display 
