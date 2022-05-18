@@ -11,7 +11,7 @@ Date: 5/18/2022
 How to run program: Download the code zip file through the code button on the github project. Then open your preferred IDE, and go to wherever you open your folder. 
 
 Link to github repo: https://github.com/Aleortela/cst205_final_project
-
+Link to our Trello board: https://trello.com/b/KKVspNsj/cst205-finalproject
 Future work: 
 
 - Shopping cart functionality
