@@ -1,3 +1,16 @@
+# Course: CST 205
+# Title: Drinkr
+# Abstract: a cocktail webapp(Drinkr) where the user can create an account, login, and add different types of cocktails to their wishlist.
+# Authors: Onyinye Aladiume, Alec Ortega, ?
+# Date: 5/18/2022
+# Who worked on what- 
+ # Home.html: Onyi
+ # LoginPage.htm: Alec
+ # Products.html: Onyi
+ # ProfilePage.html: Alec
+ # Signup: Onyi
+ # view_drinklist.html: Alec
+
 from flask import Flask, render_template, redirect, request, url_for, session, flash
 from flask_bootstrap import Bootstrap5
 from flask_wtf import FlaskForm
@@ -94,6 +107,10 @@ def home():
 
     return render_template('home.html', form = form)
 
+#This function/route shows how a user signs up. User sessions is being used so, if a username and password
+#is found in the database, a message will appear. But if a username & password isn't in the database it will insert those 
+#two values into the db accordingly.
+#Source referenced: https://www.geeksforgeeks.org/login-and-registration-project-using-flask-and-mysql/?ref=gcse
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():
    msg = ''
@@ -121,6 +138,8 @@ def signup():
       msg = 'Please fill out the form!'
    return render_template('signup.html', msg = msg)
 
+# products() shows that if a user is logged in and gets to the products' route, data is fetched from the api to display 
+# product names images, and instructions. 
 @app.route('/products')
 def products():
     if 'username' in session:
