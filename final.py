@@ -29,7 +29,8 @@ nav = Nav()
 
 class Drink(FlaskForm):
    drink_name = StringField('Enter a drink', validators=[DataRequired()])
-   
+
+product = product()
    
 class User(UserMixin):
     def __init__(self, id, username, password):
@@ -58,8 +59,6 @@ def load_user(user_id):
         return 'Not a valid user'
     else:
         return User(int(user[0]),user[1],user[2])
-
-product = Products()
 
 
 def get_db_connect():
@@ -102,6 +101,7 @@ def signup():
    cursor = conn.cursor()
    if request.method == "POST" and 'username' in request.form and 'password' in request.form:
       username = request.form['username']
+      session['username'] = username
       password = request.form['password']
       cursor.execute('SELECT * FROM users WHERE username = ? AND password = ?', (username, password, ))
       account = cursor.fetchone()
@@ -119,7 +119,7 @@ def signup():
          return render_template('profile_page.html', msg=msg)
    elif request.method == 'POST':
       msg = 'Please fill out the form!'
-   return render_template('signup.html', msg = msg, username=username)
+   return render_template('signup.html', msg = msg)
 
 @app.route('/products')
 def products():
@@ -167,6 +167,7 @@ def login():
         username = request.form['usrnm']
         session['username'] = username
         password = request.form['pwd']
+        session['password'] = password
         params = [username, password]
         cursor.execute('SELECT * FROM users WHERE username = ? AND password = ?', params)
         user = [cursor.fetchone()]
@@ -209,8 +210,7 @@ def useredit():
 @app.route('/profile_page', methods=['GET', 'POST'])
 def profile():
     if 'username' in session:
-        user= {'username': session['username'],
-               'password': session['password']}
+        user= {'username': session['username'], 'password': session['password']}
         if user is not None:
             return render_template('profile_page.html',user=user)
     else:
