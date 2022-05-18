@@ -16,6 +16,9 @@
     {% block content %}
  <div class="container">
  <h1 style="text-align: center">{{user.username}}'s Profile Page</h1>
+ {% block navbar %}
+ {{nav.profilenavbar.render()}}
+ {% endblock %}
  <br>
  {% with messages = get_flashed_messages() %}
       {% if messages %}

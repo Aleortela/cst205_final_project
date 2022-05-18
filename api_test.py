@@ -3,7 +3,7 @@ import json
 
 class Products:
 	#This gets you a random product name and image.
-	def get_random_products(self):
+	def get_random_products():
 		url = "https://the-cocktail-db.p.rapidapi.com/randomselection.php"
 
 		headers = {
@@ -15,7 +15,7 @@ class Products:
 		data1 = json.loads(data)
 		return data1
 	
-	def search_cocktail(self):
+	def search_cocktail():
 		
 		url = "https://the-cocktail-db.p.rapidapi.com/search.php"
 
@@ -31,7 +31,7 @@ class Products:
 		data1 = json.loads(data)
 		return data1
 
-	def lookupdrinks(self,id):
+	def lookupdrinks(id):
 		url = "https://the-cocktail-db.p.rapidapi.com/lookup.php"
 		querystring = {"i":id}
 		headers = {

@@ -8,11 +8,16 @@
           <div align="center" class="border">
              <div class="header">
                 <h1 class="word">Register</h1>
+                {% block navbar %}
+                {{nav.loginnavbar.render()}}
+                {% endblock %}
              </div></br></br></br>
             <h2 class="word">
                 <form action="{{ url_for('signup') }}" method="post">
                   <div class="msg">{{ msg }}</div>
+                    Enter a username:
                     <input id="username" name="username" type="text" placeholder="Enter Your Username" class="textbox"/></br></br>
+                    Enter a password:
                     <input id="password" name="password" type="password" placeholder="Enter Your Password" class="textbox"/></br></br>
                     <input type="submit" class="btn" value="Sign Up"></br>
                 </form>

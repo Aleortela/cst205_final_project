@@ -7,14 +7,17 @@
         {% block styles %}
             {{ bootstrap.load_css() }}
         {% endblock %}
-        <title>View Wishlist</title>
+        <title>View Drink List</title>
         {% endblock %}
     </head>
-    <body background="/static/images/cocktailb.jpg">
-        <h1 style="text-align:center">User Favorites</h1>        
+    <body style="text-align: center" background="/static/images/cocktailb.jpg">
+        <h1 style="text-align:center">Favorite Drinks</h1>  
+        {% block navbar %}
+        {{nav.listnavbar.render()}}
+        {% endblock %}    
         <ul>
-        {% for drink in drinks_name %}
-        <li> {{ drink }} </li>
+        {% for drink in drinks %}
+        <li> {{ drink.drink_name }} </li>
         {% endfor %}
         </ul>    
         {% block content %}{% endblock %}

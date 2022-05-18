@@ -8,10 +8,10 @@ sql_query = """ CREATE TABLE users (
     password text NOT NULL
 )"""
 
-drink_query = """ CREATE TABLE drinks (
+drink_query = """ CREATE TABLE drinksnew (
     drinkid int PRIMARY KEY,
     drink_name text NOT NULL,
-    userid int NOT NULL
+    user text NOT NULL
 )"""
 
 #cursor.execute(sql_query)
