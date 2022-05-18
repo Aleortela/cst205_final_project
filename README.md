@@ -16,4 +16,4 @@ Future work:
 
 - Shopping cart functionality
 - Users being able to add multiple products to their wishlist
-- removing a product off their wishlist
+- Removing a product off their wishlist
